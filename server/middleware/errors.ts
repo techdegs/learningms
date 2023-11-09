@@ -11,10 +11,10 @@ export const ErrorsMiddleware = (
   err.message = err.message || "Internal Server error";
 
   //wrong mongo db ID error
-  // if (err.name = "CastError") {
-  //   const message = `Request not found. Invalid: ${err.path}`;
-  //   err = new ErrorHandler(message, 400);
-  // }
+  if (err.name === "CastError") {
+    const message = `Request not found. Invalid: ${err.path}`;
+    err = new ErrorHandler(message, 400);
+  }
 
   //Duplicate key error
   if (err.code === 11000) {

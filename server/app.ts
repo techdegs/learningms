@@ -21,8 +21,8 @@ app.use(
   })
 );
 
-//use Routes
-app.use("/api/v1/", userRouter);
+//user Routes
+app.use("/api/v1", userRouter);
 
 //Testing route
 app.get("/api/v1/test", (req: Request, res: Response, next: NextFunction) => {
@@ -41,4 +41,5 @@ app.all("*", (req: Request, res: Response, next: NextFunction) => {
 
 //Errors
 app.use(ErrorsMiddleware);
+
 

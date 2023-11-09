@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import userModel from "../models/user.model";
+import userModel, { IUser } from "../models/user.model";
 import ErrorHandler from "../utils/ErrorHandler";
 import { CatchAsyncErrors } from "../middleware/catchAsyncErrors";
 import jwt, { Secret } from "jsonwebtoken";
@@ -7,6 +7,7 @@ require("dotenv").config();
 import ejs from "ejs";
 import path from "path";
 import sendMail from "../utils/sendMail";
+import { sendToken } from "../utils/jwt";
 
 //register user
 interface IRegistrationBody {
@@ -51,6 +52,7 @@ export const registerUser = CatchAsyncErrors(
           success: true,
           message: `Please check your email: ${email} to activate your account`,
           activationToken: activationToken.token,
+          activationCode: activationCode,
         });
       } catch (error: any) {
         return next(new ErrorHandler(error.message, 400));
@@ -77,3 +79,84 @@ export const createActivationToken = (user: any): IActivationToken => {
 
   return { token, activationCode };
 };
+
+//Activate user with authentication code
+interface IActivationRequest {
+  activation_token: string;
+  activation_code: string;
+}
+
+export const activateUser = CatchAsyncErrors(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { activation_token, activation_code } =
+        req.body as IActivationRequest;
+
+      const newUser: { user: IUser; activationCode: string } = jwt.verify(
+        activation_token,
+        process.env.ACTIVATION_SECRET as string
+      ) as { user: IUser; activationCode: string };
+
+      if (newUser.activationCode !== activation_code) {
+        return next(new ErrorHandler("Invalid Activation Code", 400));
+      }
+
+      const { name, email, password } = newUser.user;
+
+      //check if user exist with email
+      const existUser = await userModel.findOne({ email });
+
+      if (existUser) {
+        return next(new ErrorHandler("Email already exists", 400));
+      }
+
+      try {
+        const createUser = await userModel.create({ name, email, password });
+
+        res.status(201).json({
+          success: true,
+          createUser,
+        });
+      } catch (error: any) {
+        return next(new ErrorHandler(error.message, 400));
+      }
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+
+//LOGIN USER
+interface ILoginRequest {
+  email: string;
+  password: string;
+}
+
+export const loginUser = CatchAsyncErrors(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { email, password } = req.body as ILoginRequest;
+
+      if (!email || !password) {
+        return next(
+          new ErrorHandler("Please enter your Email and Password", 400)
+        );
+      }
+
+      const findUser = await userModel.findOne({ email }).select("+password");
+      if (!findUser) {
+        return next(new ErrorHandler("Incorrect Credential", 400));
+      }
+
+      //custom method "comparePassword " to compare user password
+      const checkPassword = await findUser.comparePassword(password);
+      if (!checkPassword) {
+        return next(new ErrorHandler("Incorrect Credentials", 400));
+      }
+
+      sendToken(findUser, 200, res);
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);

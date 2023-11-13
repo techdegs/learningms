@@ -16,7 +16,7 @@ export const isAuthenticated = CatchAsyncErrors(
 
     if (!access_token) {
       return next(
-        new ErrorHandler("Please login to access this resource", 400)
+        new ErrorHandler("Please login to access this page", 400)
       );
     }
 

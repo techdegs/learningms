@@ -7,9 +7,14 @@ require("dotenv").config();
 import ejs from "ejs";
 import path from "path";
 import sendMail from "../utils/sendMail";
-import { accessTokenOptions, refreshTokenOptions, sendToken } from "../utils/jwt";
+import {
+  accessTokenOptions,
+  refreshTokenOptions,
+  sendToken,
+} from "../utils/jwt";
 import { redis } from "../utils/redis";
 import { IGetUserAuthInfoRequest } from "../middleware/auth";
+import { getUserById } from "../services/user.service";
 
 //register user
 interface IRegistrationBody {
@@ -211,13 +216,13 @@ export const updateAccessToken = CatchAsyncErrors(
         { expiresIn: "3d" }
       );
 
-      res.cookie("access_token", accessToken, accessTokenOptions)
-      res.cookie("refresh_token", refreshToken, refreshTokenOptions)
+      res.cookie("access_token", accessToken, accessTokenOptions);
+      res.cookie("refresh_token", refreshToken, refreshTokenOptions);
 
       res.status(200).json({
-        status: 'success', 
-        accessToken
-      })
+        status: "success",
+        accessToken,
+      });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
@@ -225,3 +230,13 @@ export const updateAccessToken = CatchAsyncErrors(
 );
 
 //Get user info
+export const getUserInfo = CatchAsyncErrors(
+  async (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.user?._id;
+      getUserById(userId, res);
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);

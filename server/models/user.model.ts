@@ -13,6 +13,7 @@ export interface IUser extends Document {
     public_id: string;
     url: string;
   };
+
   role: string;
   isVerified: boolean;
   courses: Array<{ courseId: string }>;
@@ -74,12 +75,14 @@ userSchema.pre<IUser>("save", async function (next) {
 
 //Sign Access Token - when user login, create access token and sign to the user
 userSchema.methods.SignAccessToken = function () {
-  return jwt.sign({ id: this._id }, process.env.ACCESS_TOKEN || "");
+  return jwt.sign({ id: this._id }, process.env.ACCESS_TOKEN || "", {expiresIn: '5m'});
 };
 
 //SIGN refresh Token
 userSchema.methods.SignRefreshToken = function () {
-  return jwt.sign({ id: this._id }, process.env.REFRESH_TOKEN || "");
+  return jwt.sign({ id: this._id }, process.env.REFRESH_TOKEN || "", {
+    expiresIn: "3d",
+  });
 };
 
 //compare password

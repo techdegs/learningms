@@ -189,7 +189,7 @@ export const logoutUser = CatchAsyncErrors(
 
 //Update access token since token expires after 5min
 export const updateAccessToken = CatchAsyncErrors(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
     try {
       const refresh_token = req.cookies.refresh_token as string;
       const decoded = jwt.verify(
@@ -215,6 +215,8 @@ export const updateAccessToken = CatchAsyncErrors(
         process.env.REFRESH_TOKEN as string,
         { expiresIn: "3d" }
       );
+
+      req.user = user;
 
       res.cookie("access_token", accessToken, accessTokenOptions);
       res.cookie("refresh_token", refreshToken, refreshTokenOptions);
@@ -260,6 +262,89 @@ export const socialAuth = CatchAsyncErrors(
         sendToken(user, 200, res);
         //return next(new ErrorHandler(`You already have an account with this email: ${email}. You can sign in with this email.`, 400));
       }
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+
+//Update user info
+interface IUpdateUserInfo {
+  name?: string;
+  email?: string;
+}
+
+export const updateUserInfo = CatchAsyncErrors(
+  async (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
+    try {
+      const { name, email } = req.body as IUpdateUserInfo;
+      const userId = req.user?._id;
+      const user = await userModel.findById(userId);
+
+      if (email && user) {
+        const isEmailExist = await userModel.findOne({ email });
+        if (isEmailExist) {
+          return next(
+            new ErrorHandler(`This email: ${email} already exist`, 400)
+          );
+        }
+        user.email = email;
+      }
+      if (name && user) {
+        user.name = name;
+      }
+      await user?.save();
+      await redis.set(userId, JSON.stringify(user));
+
+      res.status(201).json({
+        status: true,
+        user,
+      });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+
+//Update user password
+interface IUpdatePassword {
+  oldPassword: string;
+  newPassword: string;
+}
+
+export const updatePassword = CatchAsyncErrors(
+  async (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
+    try {
+      const { oldPassword, newPassword } = req.body as IUpdatePassword;
+      const userId = req.user?._id;
+      const user = await userModel.findById(userId).select("+password");
+      const isPasswordMatch = await user?.comparePassword(oldPassword);
+
+      if (user?.password === undefined) {
+        return next(new ErrorHandler("Invalid user", 400));
+      }
+
+      if (newPassword.length < 6) {
+        return next(
+          new ErrorHandler("Password must be at lease 6 characters", 400)
+        );
+      }
+      if (oldPassword === newPassword) {
+        return next(
+          new ErrorHandler("old password cannot be same as new password", 400)
+        );
+      }
+      if (!isPasswordMatch) {
+        return next(new ErrorHandler("Wrong old credential", 400));
+      }
+      user.password = newPassword;
+      await redis.set(user._id, JSON.stringify(user));
+
+      await user.save();
+      res.status(200).json({
+        success: true,
+        user,
+      });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }

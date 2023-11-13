@@ -15,6 +15,7 @@ import {
 import { redis } from "../utils/redis";
 import { IGetUserAuthInfoRequest } from "../middleware/auth";
 import { getUserById } from "../services/user.service";
+import cloudinary from "cloudinary";
 
 //register user
 interface IRegistrationBody {
@@ -316,9 +317,24 @@ export const updatePassword = CatchAsyncErrors(
   async (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
     try {
       const { oldPassword, newPassword } = req.body as IUpdatePassword;
+      if (!newPassword || oldPassword) {
+        return next(new ErrorHandler("Enter your old and new password", 400));
+      }
       const userId = req.user?._id;
+
+      if (!userId) {
+        return next(new ErrorHandler("User not found", 400));
+      }
       const user = await userModel.findById(userId).select("+password");
+
+      if (!user) {
+        return next(new ErrorHandler("Sorry User not found", 400));
+      }
       const isPasswordMatch = await user?.comparePassword(oldPassword);
+
+      if (!isPasswordMatch) {
+        return next(new ErrorHandler("Wrong old credential", 400));
+      }
 
       if (user?.password === undefined) {
         return next(new ErrorHandler("Invalid user", 400));
@@ -334,17 +350,78 @@ export const updatePassword = CatchAsyncErrors(
           new ErrorHandler("old password cannot be same as new password", 400)
         );
       }
-      if (!isPasswordMatch) {
-        return next(new ErrorHandler("Wrong old credential", 400));
-      }
+
       user.password = newPassword;
-      await redis.set(user._id, JSON.stringify(user));
+      await redis.set(userId, JSON.stringify(user));
 
       await user.save();
       res.status(200).json({
         success: true,
+        message: "Password updated successfully",
         user,
       });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+
+// Update profile picture/avatar
+interface IUpdateProfilePicture {
+  avatar: string;
+}
+export const updateProfilePicture = CatchAsyncErrors(
+  async (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
+    try {
+      const { avatar } = req.body as IUpdateProfilePicture;
+      
+      if(!avatar){
+        return next(new ErrorHandler('Add avatar link/url', 400));
+      }
+      const userId = req?.user?._id;
+
+      if (!userId) {
+        return next(new ErrorHandler("Error Occured", 400));
+      }
+
+      const user = await userModel.findById(userId);
+      if (!user) {
+        return next(new ErrorHandler("Error Occurred", 400));
+      }
+
+      if (avatar && user) {
+        if (user?.avatar?.public_id) {
+          await cloudinary.v2.uploader.destroy(user?.avatar?.public_id);
+          const myCloud = await cloudinary.v2.uploader.upload(avatar, {
+            folder: "avatars",
+            width: 150,
+          });
+          user.avatar = {
+            public_id: myCloud.public_id,
+            url: myCloud.secure_url,
+          };
+        } else {
+          const myCloud = await cloudinary.v2.uploader.upload(avatar, {
+            folder: "avatars",
+            width: 150,
+          });
+          user.avatar = {
+            public_id: myCloud.public_id,
+            url: myCloud.secure_url,
+          };
+        }
+      } else {
+        return next(new ErrorHandler("Something went wrong", 400));
+      }
+      await user?.save();
+      await redis.set(userId, JSON.stringify(user))
+
+      res.status(200).json({
+        success: true,
+        message: "Avatar Updated Successfully!",
+        user
+      });
+
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }

@@ -11,7 +11,7 @@ export interface IGetUserAuthInfoRequest extends Request {
 
 // Authenticated User
 export const isAuthenticated = CatchAsyncErrors(
-  async (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     const access_token = req.cookies.access_token as string;
 
     if (!access_token) {
@@ -43,7 +43,7 @@ export const isAuthenticated = CatchAsyncErrors(
 
 //Validate user role
 export const authorizeRoles = (...roles: string[]) => {
-  return (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction) => {
     if(!roles.includes(req.user?.role || '')){
       return next(new ErrorHandler( `Role: ${req.user?.role} is not allowed to access this resources`, 403));
     }

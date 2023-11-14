@@ -13,7 +13,6 @@ import {
   sendToken,
 } from "../utils/jwt";
 import { redis } from "../utils/redis";
-import { IGetUserAuthInfoRequest } from "../middleware/auth";
 import { getUserById } from "../services/user.service";
 import cloudinary from "cloudinary";
 
@@ -170,13 +169,13 @@ export const loginUser = CatchAsyncErrors(
 );
 
 export const logoutUser = CatchAsyncErrors(
-  async (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       res.cookie("access_token", "", { maxAge: 1 });
       res.cookie("refresh_token", "", { maxAge: 1 });
 
       //delete cache from redis
-      const userId = req.user._id || "";
+      const userId = req.user?._id || "";
       redis.del(userId);
       res.status(200).json({
         success: true,
@@ -190,7 +189,7 @@ export const logoutUser = CatchAsyncErrors(
 
 //Update access token since token expires after 5min
 export const updateAccessToken = CatchAsyncErrors(
-  async (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const refresh_token = req.cookies.refresh_token as string;
       const decoded = jwt.verify(
@@ -234,7 +233,7 @@ export const updateAccessToken = CatchAsyncErrors(
 
 //Get user info
 export const getUserInfo = CatchAsyncErrors(
-  async (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = req.user?._id;
       getUserById(userId, res);
@@ -276,7 +275,7 @@ interface IUpdateUserInfo {
 }
 
 export const updateUserInfo = CatchAsyncErrors(
-  async (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
+  async (req:Request, res: Response, next: NextFunction) => {
     try {
       const { name, email } = req.body as IUpdateUserInfo;
       const userId = req.user?._id;
@@ -314,7 +313,7 @@ interface IUpdatePassword {
 }
 
 export const updatePassword = CatchAsyncErrors(
-  async (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { oldPassword, newPassword } = req.body as IUpdatePassword;
       if (!newPassword || oldPassword) {
@@ -371,7 +370,7 @@ interface IUpdateProfilePicture {
   avatar: string;
 }
 export const updateProfilePicture = CatchAsyncErrors(
-  async (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { avatar } = req.body as IUpdateProfilePicture;
 

@@ -1,6 +1,6 @@
 import express from "express";
 import { authorizeRoles, isAuthenticated } from "../middleware/auth";
-import { editCourse, getAllCourses, getSingleCourse, uploadCourse } from "../controllers/course.controller";
+import { addQuestion, editCourse, getAllCourses, getCourseByUser, getSingleCourse, uploadCourse } from "../controllers/course.controller";
 
 const courseRouter = express.Router();
 
@@ -28,4 +28,11 @@ courseRouter.get(
 
 //Fetch all courses for everyone, frontend
 courseRouter.get("/fetch-courses", getAllCourses);
+
+//Fetch Course Content for user if he/she has purchased 
+courseRouter.get("/get-user-course/:id", isAuthenticated, getCourseByUser);
+
+courseRouter.put("/add-question/", addQuestion);
+
+
 export default courseRouter;

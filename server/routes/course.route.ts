@@ -1,6 +1,6 @@
 import express from "express";
 import { authorizeRoles, isAuthenticated } from "../middleware/auth";
-import { editCourse, getSingleCourse, uploadCourse } from "../controllers/course.controller";
+import { editCourse, getAllCourses, getSingleCourse, uploadCourse } from "../controllers/course.controller";
 
 const courseRouter = express.Router();
 
@@ -25,4 +25,7 @@ courseRouter.get(
   "/fetch-course/:id",
   getSingleCourse
 );
+
+//Fetch all courses for everyone, frontend
+courseRouter.get("/fetch-courses", getAllCourses);
 export default courseRouter;

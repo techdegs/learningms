@@ -96,3 +96,23 @@ export const getSingleCourse = CatchAsyncErrors(async (req: Request, res: Respon
     return next(new ErrorHandler(error.message, 400));
   }
 })
+
+
+//Get all courses for the public
+export const getAllCourses = CatchAsyncErrors(async(req:Request, res:Response, next:NextFunction) => {
+  try {
+    const courses = await CourseModel.find().select(
+      "-courseData.videoUrl -courseData.suggestion -courseData.questions -courseData.links"
+    );
+
+    if(!courses) return next(new ErrorHandler('Sorry Error occurred fetching courses' , 400));
+
+    res.status(200).json({
+      success: true,
+      courses,
+      message: 'Courses Fetched Successfully'
+    })
+  } catch (error:any) {
+    return next(new ErrorHandler(error.message, 400))
+  }
+})

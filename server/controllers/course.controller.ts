@@ -76,3 +76,23 @@ export const editCourse = CatchAsyncErrors(
     }
   }
 );
+
+//Get Single Course -- without purchasing - Everyone can access
+export const getSingleCourse = CatchAsyncErrors(async (req: Request, res: Response, next:NextFunction) => {
+  try {
+    const courseId = req.params.id;
+    if(!courseId) return next(new ErrorHandler('No Course Id. Try again', 400))
+
+    const course = await CourseModel.findById(courseId).select("-courseData.videoUrl -courseData.suggestion -courseData.questions -courseData.links");
+
+    if(!course) return next(new ErrorHandler('Sorry Error occurred fetching the course', 400));
+
+    res.status(200).json({
+      success:true,
+      course,
+      message: 'Fetched Course successfully'
+    })
+  } catch (error:any) {
+    return next(new ErrorHandler(error.message, 400));
+  }
+})

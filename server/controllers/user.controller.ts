@@ -374,9 +374,9 @@ export const updateProfilePicture = CatchAsyncErrors(
   async (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
     try {
       const { avatar } = req.body as IUpdateProfilePicture;
-      
-      if(!avatar){
-        return next(new ErrorHandler('Add avatar link/url', 400));
+
+      if (!avatar) {
+        return next(new ErrorHandler("Add avatar link/url", 400));
       }
       const userId = req?.user?._id;
 
@@ -414,14 +414,13 @@ export const updateProfilePicture = CatchAsyncErrors(
         return next(new ErrorHandler("Something went wrong", 400));
       }
       await user?.save();
-      await redis.set(userId, JSON.stringify(user))
+      await redis.set(userId, JSON.stringify(user));
 
       res.status(200).json({
         success: true,
         message: "Avatar Updated Successfully!",
-        user
+        user,
       });
-
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }

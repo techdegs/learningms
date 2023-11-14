@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Reply Notification</title>
+
+  <style type="text/css">
+    /* Base */
+    body {
+      margin: 0;
+      padding: 0;
+      min-width: 100%;
+      font-family: Outfit, sans-serif;
+      line-height: 1.5;
+      font-size: 16px;
+      background-color: #fafafa;
+      color: #222222;
+    }
+
+    a {
+      color: #000;
+      text-decoration: none;
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 1.25;
+      margin-top: 0;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
+    p {
+      margin-top: 0;
+      margin-bottom: 24px;
+    }
+
+    table td {
+      vertical-align: top;
+    }
+
+    /* Layout */
+    .email-wrapper {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .email-header {
+      background-color: #0070f3;
+      padding: 24px;
+      color: #ffffff;
+    }
+
+    .email-body {
+      padding: 24px;
+      background-color: #ffffff;
+    }
+
+    .email-footer {
+      background-color: #f6f6f6;
+      padding: 24px;
+    }
+
+    /* Buttons */
+    .button {
+      display: inline-block;
+      background-color: #0070f3;
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 700;
+      text-align: center;
+      text-decoration: none;
+      padding: 12px 24px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="email-wrapper">
+    <h1>Learning Management System</h1>
+  </div>
+  <h1>hello <%= name %>
+  </h1>
+  <div class="email-body">
+    <p>A new reply has been added to your question in the video <%= title %> . </p>
+    <p>Please login to our website to view the reply and continue the discussion</p>
+    <p>Thank you for being part of the community!</p>
+  </div>
+  <div class="email-footer">
+    <p>If you have any question, please do not hesitate to contact us at <a
+        href="mailto:addsamuel355@gmai.com">support@samueldev.com</a></p>
+  </div>
+</body>
+
+</html>

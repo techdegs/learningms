@@ -32,7 +32,7 @@ export const createOder = CatchAsyncErrors(
         );
 
       let purchasedCourses = course.purchased;
-      if(purchasedCourses === undefined ){
+      if (purchasedCourses === undefined) {
         purchasedCourses = 0;
       }
 
@@ -100,7 +100,7 @@ export const createOder = CatchAsyncErrors(
 
       //Create Order
       newOrder(data, res, next);
-      course.purchased = purchasedCourses + 1
+      course.purchased = purchasedCourses + 1;
       await course?.save();
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));

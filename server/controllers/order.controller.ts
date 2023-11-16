@@ -4,7 +4,7 @@ import ErrorHandler from "../utils/ErrorHandler";
 import { IOrder } from "../models/order.model";
 import userModel from "../models/user.model";
 import CourseModel from "../models/course.model";
-import { newOrder } from "../services/order.service";
+import { getAllOrders, newOrder } from "../services/order.service";
 import ejs from "ejs";
 import path from "path";
 import sendMail from "../utils/sendMail";
@@ -102,6 +102,17 @@ export const createOder = CatchAsyncErrors(
       newOrder(data, res, next);
       course.purchased = purchasedCourses + 1;
       await course?.save();
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  }
+);
+
+//Fetch all order
+export const fetchOrders = CatchAsyncErrors(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      getAllOrders(res, next);
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
     }

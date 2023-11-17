@@ -32,7 +32,7 @@ export const isAuthenticated = CatchAsyncErrors(
     const user = await redis.get(decoded.id);
 
     if (!user) {
-      return next(new ErrorHandler("user not found", 400));
+      return next(new ErrorHandler("Please login to access this resources", 400));
     }
 
     //create custom d.ts to accept user to global namespace

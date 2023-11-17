@@ -101,11 +101,13 @@ export const editLayout = CatchAsyncErrors(
       const { type } = req.body;
 
       if (type === "Banner") {
-        const bannerData:any = await LayoutModel.findOne({type: "Banner"})
-        const {image, title, subTitle} = req.body;
-      
-        if(bannerData){
-          await cloudinary.v2.uploader.destroy(bannerData.banner.image.public_id);
+        const bannerData: any = await LayoutModel.findOne({ type: "Banner" });
+        const { image, title, subTitle } = req.body;
+
+        if (bannerData) {
+          await cloudinary.v2.uploader.destroy(
+            bannerData.banner.image.public_id
+          );
         }
 
         const myCloud = await cloudinary.v2.uploader.upload(image, {
@@ -120,10 +122,13 @@ export const editLayout = CatchAsyncErrors(
           title,
           subTitle,
         };
-        const updateBanner = await LayoutModel.findByIdAndUpdate(bannerData._id,{
-          type: "Banner",
-          banner,
-        });
+        const updateBanner = await LayoutModel.findByIdAndUpdate(
+          bannerData._id,
+          {
+            type: "Banner",
+            banner,
+          }
+        );
 
         if (updateBanner) {
           return res.status(201).json({
@@ -138,7 +143,7 @@ export const editLayout = CatchAsyncErrors(
         }
       } else if (type === "FAQ") {
         const { faq } = req.body;
-        const faqItem = await LayoutModel.findOne({type: "FAQ"})
+        const faqItem = await LayoutModel.findOne({ type: "FAQ" });
         const faqItems = await Promise.all(
           faq.map(async (item: any) => {
             return {
@@ -148,13 +153,15 @@ export const editLayout = CatchAsyncErrors(
           })
         );
 
-        await LayoutModel.findByIdAndUpdate(faqItem?._id, { type: "FAQ", faq: faqItems });
+        await LayoutModel.findByIdAndUpdate(faqItem?._id, {
+          type: "FAQ",
+          faq: faqItems,
+        });
 
         return res.status(201).json({
           success: true,
           message: "FAQ updated successfully",
         });
-
       } else if (type === "Categories") {
         const { categories } = req.body;
         const categoryItem = await LayoutModel.findOne({ type: "Categories" });
@@ -177,6 +184,33 @@ export const editLayout = CatchAsyncErrors(
       } else {
         return next(new ErrorHandler("Sorry choose input", 400));
       }
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+
+//get layout by type
+export const getLayoutByType = CatchAsyncErrors(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { type } = req.body;
+      if (!type)
+        return next(
+          new ErrorHandler("Sorry error occurred fetching type", 400)
+        );
+
+      const layout = await LayoutModel.find({type});
+      if (!layout)
+        return next(
+          new ErrorHandler("Sorry error occurred fetching type", 400)
+        );
+
+      res.status(200).json({
+        success: true,
+        message: "Fetched Layout",
+        layout,
+      });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }

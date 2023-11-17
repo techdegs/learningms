@@ -446,8 +446,39 @@ export const updateUserRole = CatchAsyncErrors(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id, role } = req.body;
-      if(!id && !role) return next(new ErrorHandler('Error occurred updating user role', 400));
+      if (!id && !role)
+        return next(new ErrorHandler("Error occurred updating user role", 400));
       changeUserRole(res, id, role, next);
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+
+//Delete user
+export const deleteUser = CatchAsyncErrors(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params;
+      if (!id) return next(new ErrorHandler("User not found", 404));
+
+      const user = await userModel.findById(id);
+      if (!user) return next(new ErrorHandler("User not found", 404));
+
+      const deleteUser = await user.deleteOne({ id });
+      if (!deleteUser)
+        return next(
+          new ErrorHandler("User was not deleted. Try again later", 404)
+        );
+
+      const deleteUserRd = await redis.del(id);
+
+      if (deleteUser && deleteUserRd) {
+        res.status(200).json({
+          success: true,
+          message: "User Deleted successfully",
+        });
+      }
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }

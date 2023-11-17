@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { CatchAsyncErrors } from "../middleware/catchAsyncErrors";
 import ErrorHandler from "../utils/ErrorHandler";
 import cloudinary from "cloudinary";
-import { createCourse } from "../services/course.service";
+import { createCourse, getCourses } from "../services/course.service";
 import CourseModel from "../models/course.model";
 import { redis } from "../utils/redis";
 import mongoose from "mongoose";
@@ -484,6 +484,17 @@ export const addReplyToReview = CatchAsyncErrors(
         message: "Replied Successfully",
         course,
       });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+
+//Fetch all courses for admin
+export const fetchAllCourses = CatchAsyncErrors(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      getCourses(res, next)
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }

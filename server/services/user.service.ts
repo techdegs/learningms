@@ -22,10 +22,27 @@ export const getAllUsers = async (res: Response, next: NextFunction) => {
   if (!users)
     return next(new ErrorHandler("Something went wrong fetching users", 500));
   if (users.length <= 0) return next(new ErrorHandler("No Users Found", 400));
-  
+
   res.status(200).json({
     success: true,
     users,
     message: "Fetched users successfully",
   });
+};
+
+//update user role
+export const changeUserRole = async (
+  res: Response,
+  id: string,
+  role: string,
+  next: NextFunction
+) => {
+  const user = await userModel.findByIdAndUpdate(id, {role}, {new: true})
+  if(!user) return next(new ErrorHandler('User not found', 404))
+
+  res.status(200).json({
+    success: true,
+    message: "User role updated successfullly",
+    user
+  })
 };

@@ -13,7 +13,11 @@ import {
   sendToken,
 } from "../utils/jwt";
 import { redis } from "../utils/redis";
-import { getAllUsers, getUserById } from "../services/user.service";
+import {
+  changeUserRole,
+  getAllUsers,
+  getUserById,
+} from "../services/user.service";
 import cloudinary from "cloudinary";
 
 //register user
@@ -275,7 +279,7 @@ interface IUpdateUserInfo {
 }
 
 export const updateUserInfo = CatchAsyncErrors(
-  async (req:Request, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { name, email } = req.body as IUpdateUserInfo;
       const userId = req.user?._id;
@@ -426,12 +430,26 @@ export const updateProfilePicture = CatchAsyncErrors(
   }
 );
 
-
 //fetch all users for admin
-export const fetchAllUsers = CatchAsyncErrors(async(req:Response, res:Response, next:NextFunction) => {
-  try {
-    getAllUsers(res, next)
-  } catch (error:any) {
-    return next(new ErrorHandler(error.message, 500));
+export const fetchAllUsers = CatchAsyncErrors(
+  async (req: Response, res: Response, next: NextFunction) => {
+    try {
+      getAllUsers(res, next);
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 500));
+    }
   }
-})
+);
+
+//Update user role
+export const updateUserRole = CatchAsyncErrors(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id, role } = req.body;
+      if(!id && !role) return next(new ErrorHandler('Error occurred updating user role', 400));
+      changeUserRole(res, id, role, next);
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);

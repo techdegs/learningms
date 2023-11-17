@@ -456,7 +456,7 @@ export const updateUserRole = CatchAsyncErrors(
 );
 
 //Delete user
-export const deleteUser = CatchAsyncErrors(
+export const deleteUserAdmin = CatchAsyncErrors(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;
@@ -484,3 +484,4 @@ export const deleteUser = CatchAsyncErrors(
     }
   }
 );
+

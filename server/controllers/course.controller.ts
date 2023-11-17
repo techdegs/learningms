@@ -494,7 +494,37 @@ export const addReplyToReview = CatchAsyncErrors(
 export const fetchAllCourses = CatchAsyncErrors(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      getCourses(res, next)
+      getCourses(res, next);
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+
+//Delete course - admin
+export const deleteCourseAdmin = CatchAsyncErrors(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params;
+      if (!mongoose.Types.ObjectId.isValid(id))
+        return next(new ErrorHandler("Sorry! Course not found", 400));
+      if (!id) return next(new ErrorHandler("Course not found", 404));
+
+      const course = await CourseModel.findById(id);
+      if (!course) return next(new ErrorHandler("Course not found", 404));
+
+      const deleteCourse = await course.deleteOne({ id });
+      if (!deleteCourse)
+        return next(
+          new ErrorHandler("course was not deleted. Try again later", 404)
+        );
+
+      const deleteCourseRd = await redis.del(id);
+
+      res.status(200).json({
+        success: true,
+        message: "Course Deleted successfully",
+      });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }

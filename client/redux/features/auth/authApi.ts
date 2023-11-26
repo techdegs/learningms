@@ -34,17 +34,17 @@ export const authApi = apiSlice.injectEndpoints({
     }),
 
     //Activation
-    activation: builder.mutation({
+    activate: builder.mutation({
       query: ({ activation_token, activation_code }) => ({
         url: "verifyToken",
         method: "POST",
         body: {
+          activation_token,
           activation_code,
-          activation_token
         }
       }),
     }),
   }),
 });
 
-export const {useActivationMutation, useRegisterMutation} = authApi
+export const {useActivateMutation, useRegisterMutation} = authApi

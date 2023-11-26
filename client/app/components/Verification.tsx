@@ -1,8 +1,10 @@
-import React, { FC, useState, useRef } from "react";
+import React, { FC, useState, useRef, useEffect } from "react";
 import toast from "react-hot-toast";
 import { styles } from "../styles/style";
 import { VscWorkspaceTrusted } from "react-icons/vsc";
 import { FcGoogle } from "react-icons/fc";
+import { useSelector } from "react-redux";
+import { useActivateMutation } from "@/redux/features/auth/authApi";
 
 type Props = {
   route: string;
@@ -16,9 +18,27 @@ type VerifyNumber = {
   "3": string;
 };
 
-const Verification: FC<Props> = ({ setRoute, route }) => {
-  const [show, setShow] = useState(false);
+const Verification: FC<Props> = ({ setRoute }) => {
   const [invalidError, setInvalidError] = useState<boolean>(false);
+  const { token } = useSelector((state: any) => state.auth);
+  const [activate, { isSuccess, error }] = useActivateMutation();
+
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success("Account activated successfully");
+      setRoute("Login");
+    }
+    if (error) {
+      if ("data" in error) {
+        const errorData = error as any;
+        toast.error(errorData.data.message);
+        setInvalidError(true);
+      } else {
+        console.log("An error occurred", error);
+      }
+    }
+  }, [isSuccess, error]);
+
   const inputRefs = [
     useRef<HTMLInputElement>(null),
     useRef<HTMLInputElement>(null),
@@ -34,7 +54,17 @@ const Verification: FC<Props> = ({ setRoute, route }) => {
   });
 
   const verificationHandler = async () => {
-    setInvalidError(true)
+    const verificationNumber = Object.values(verifyNumber).join("");
+    console.log(verificationNumber);
+    console.log(token)
+    if (verificationNumber.length !== 4) {
+      setInvalidError(true);
+      return;
+    }
+    await activate({
+      activation_token: token,
+      activation_code: verificationNumber,
+    });
   };
 
   const handleInputChange = (index: number, value: string) => {
@@ -82,12 +112,21 @@ const Verification: FC<Props> = ({ setRoute, route }) => {
       <br />
       <br />
       <div className="w-full flex justify-center mb-2">
-        <button onClick={verificationHandler} className={`${styles.button}`}>Verify OTP</button>
+        <button onClick={verificationHandler} className={`${styles.button}`}>
+          Verify OTP
+        </button>
       </div>
       <h5 className="text-center pt-4 font-Poppins text-[14px] text-black dark:text-white">
-        Go back to sign in ? <span onClick={() => setRoute("Login")} className="text-[#2190ff] pl-1 cursor-pointer">Sign in</span>
+        Go back to sign in ?{" "}
+        <span
+          onClick={() => setRoute("Login")}
+          className="text-[#2190ff] pl-1 cursor-pointer"
+        >
+          Sign in
+        </span>
       </h5>
-      <br /><br />
+      <br />
+      <br />
     </div>
   );
 };

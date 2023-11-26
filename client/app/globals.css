@@ -8,6 +8,14 @@
   --background-end-rgb: 255, 255, 255;
 }
 
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button{
+  -webkit-appearance: none;
+  margin:0
+}
+input[type="number"]{
+  -moz-appearance: textfield;
+}
 @media (prefers-color-scheme: dark) {
   :root {
     --foreground-rgb: 255, 255, 255;
@@ -50,4 +58,29 @@ body {
   83.33% {
     opacity: 0.4;
   }
+}
+
+@keyframes shake{
+  0%{
+    transform: translateX(0)
+  }
+  20%{
+    transform: translateX(-4px)
+  }
+  40%{
+    transfrom: translateX(4px)
+  }
+  60%{
+    transform: translateX(-4px)
+  }
+  80%{
+    transform: translateX(4px)
+  }
+  100%{
+    transform: translateX(0)
+  }
+}
+
+.shake{
+  animation: shake 0.5s ease-in-out
 }

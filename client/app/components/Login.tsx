@@ -11,7 +11,7 @@ import { FcGoogle } from "react-icons/fc";
 import { styles } from "../styles/style";
 
 type Props = {
-  route: string
+  route: string;
   setRoute: (route: string) => void;
 };
 
@@ -29,7 +29,7 @@ const Login: FC<Props> = ({ setRoute, route }) => {
     initialValues: { email: "", password: "" },
     validationSchema: schema,
     onSubmit: async ({ email, password }) => {
-      console.log(email, password);
+      console.log("here we go")
     },
   });
 
@@ -38,6 +38,7 @@ const Login: FC<Props> = ({ setRoute, route }) => {
   return (
     <div className="w-full ">
       <h1 className={`${styles.title}`}>Login with E-Learning</h1>
+      <br />
       <form onSubmit={handleSubmit}>
         <label htmlFor="email" className={`${styles.label}`}>
           Enter your email
@@ -86,17 +87,13 @@ const Login: FC<Props> = ({ setRoute, route }) => {
               />
             </>
           )}
-          {errors.password && touched.password && (
-            <span className="text-red-500 pt-2 block">{errors.email}</span>
-          )}
         </div>
+        {errors.password && touched.password && (
+          <span className="text-red-500 pt-2 block">{errors.password}</span>
+        )}
         <br />
         <div className="w-full mt-5">
-          <input
-            type="submit"
-            value="Login"
-            className={`${styles.button}`}
-          ></input>
+          <input type="submit" value="Login" className={`${styles.button}`} />
         </div>
         <br />
         <h5 className="text-center pt-4 font-Poppins text-[14px] text-black dark:text-white ">

@@ -22,7 +22,9 @@ app.use(cookieParser());
 //secure practice to prevent others from accessing from different server
 app.use(
   cors({
-    origin: process.env.ORIGIN,
+    //origin: process.env.ORIGIN,
+    origin: ['http://localhost:3000'],
+    credentials: true,
   })
 );
 

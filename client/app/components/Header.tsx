@@ -1,5 +1,5 @@
 "use client";
-import React, { FC, useState } from "react";
+import React, { FC, useState, useEffect } from "react";
 import Link from "next/link";
 import NavItems from "./NavItems";
 import ThemeSwitcher from "./ThemeSwitcher";
@@ -8,6 +8,10 @@ import CustomModal from "./CustomModal";
 import Login from "./Login";
 import SignUp from "./SignUp";
 import Verification from "./Verification";
+import { useSelector } from "react-redux";
+import Image from 'next/image'
+import { useSocialAuthMutation } from "@/redux/features/auth/authApi";
+import { useSession } from "next-auth/react";
 
 type Props = {
   open: boolean;
@@ -20,6 +24,23 @@ type Props = {
 const Header: FC<Props> = ({ activeItem, setOpen, route, setRoute, open }) => {
   const [active, setActive] = useState(false);
   const [openSideBar, setOpenSideBar] = useState(false);
+  const {user} = useSelector((state:any) => state.auth)
+  const {data} = useSession()
+  const [socialAuth, {isSuccess, error}] = useSocialAuthMutation();
+
+  useEffect(() => {
+    if(!user){
+      if(data){
+        socialAuth({
+          email: data?.user?.email,
+          name: data?.user?.name,
+          avatar: data?.user?.image,
+        })
+      }
+    }
+  },[user, data])
+
+  console.log(data)
 
   if (typeof window !== "undefined") {
     window.addEventListener("scroll", () => {
@@ -66,11 +87,19 @@ const Header: FC<Props> = ({ activeItem, setOpen, route, setRoute, open }) => {
                   onClick={() => setOpenSideBar(true)}
                 />
               </div>
-              <HiOutlineUserCircle
-                size={25}
-                className="hidden 800px:block cursor-pointer dark:text-white text-black"
-                onClick={() => setOpen(true)}
-              />
+              {user ? (
+                <>
+                  <Link href="/profile">
+                    <Image className="rounded-full w-[30px] h-[30px] cursor-pointer" width={100} height={100} src={user.image ? user?.avatar : "/images/avatar.png"} alt="user" />
+                  </Link>
+                </>
+              ) : (
+                <HiOutlineUserCircle
+                  size={25}
+                  className="hidden 800px:block cursor-pointer dark:text-white text-black"
+                  onClick={() => setOpen(true)}
+                />
+              )}
             </div>
           </div>
         </div>

@@ -28,6 +28,7 @@ interface IRegistrationBody {
   password: string;
 }
 
+//Register
 export const registerUser = CatchAsyncErrors(
   async (req: Request, res: Response, next: NextFunction) => {
     try {

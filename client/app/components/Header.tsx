@@ -9,7 +9,7 @@ import Login from "./Login";
 import SignUp from "./SignUp";
 import Verification from "./Verification";
 import { useSelector } from "react-redux";
-import Image from 'next/image'
+import Image from "next/image";
 import { useSocialAuthMutation } from "@/redux/features/auth/authApi";
 import { useSession } from "next-auth/react";
 import { signOut } from "next-auth/react";
@@ -28,40 +28,38 @@ type Props = {
 const Header: FC<Props> = ({ activeItem, setOpen, route, setRoute, open }) => {
   const [active, setActive] = useState(false);
   const [openSideBar, setOpenSideBar] = useState(false);
-  const {user} = useSelector((state:any) => state.auth)
-  const {data} = useSession()
-  const [socialAuth, {isSuccess, error}] = useSocialAuthMutation();
+  const { user } = useSelector((state: any) => state.auth);
+  const { data } = useSession();
+  const [socialAuth, { isSuccess, error }] = useSocialAuthMutation();
 
   const [logout, setLogout] = useState(false);
 
   const {} = useLogoutQuery(undefined, {
-    skip: !logout ? true: false
-  })
+    skip: !logout ? true : false,
+  });
 
   useEffect(() => {
-    if(!user){
-      if(data){
+    if (!user) {
+      if (data) {
         socialAuth({
           email: data?.user?.email,
           name: data?.user?.name,
           avatar: data?.user?.image,
-        })
+        });
       }
     }
 
     //check session data
-    if(data === null){
-      if(isSuccess){
-        toast.success("Login Successfully")
+    if (data === null) {
+      if (isSuccess) {
+        toast.success("Login Successfully");
       }
     }
 
-    if(data === null){
-      setLogout(true)
+    if (data === null) {
+      setLogout(true);
     }
-
-  },[user, data])
-
+  }, [user, data, isSuccess, socialAuth]);
 
   if (typeof window !== "undefined") {
     window.addEventListener("scroll", () => {
@@ -111,7 +109,16 @@ const Header: FC<Props> = ({ activeItem, setOpen, route, setRoute, open }) => {
               {user ? (
                 <>
                   <Link href="/profile">
-                    <Image className="rounded-full w-[30px] h-[30px] cursor-pointer" width={100} height={100} src={user.image ? user?.avatar : "/images/avatar.png"} alt="user" />
+                    <Image
+                      className="rounded-full w-[30px] h-[30px] cursor-pointer ml-1"
+                      width={100}
+                      height={100}
+                      src={user.avatar ? user.avatar.url : "/images/avatar.png"}
+                      alt="user"
+                      style={{
+                        border: activeItem === 5 ? "2px solid #37a39a" : "none",
+                      }}
+                    />
                   </Link>
                 </>
               ) : (

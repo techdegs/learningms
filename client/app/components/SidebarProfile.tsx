@@ -34,7 +34,7 @@ const SidebarProfile: FC<Props> = ({
           className="w-[20px] h-[20px] 800px:h-[30px] 800px:w-[30px] cursor-pointer rounded-full "
           src={
             user?.avatar || avatar
-              ? user?.avatar || avatar
+              ? user?.avatar.url || avatar
               : "/images/avatar.png"
           }
           alt=""

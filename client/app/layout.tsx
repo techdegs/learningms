@@ -8,7 +8,9 @@ import Heading from "./utils/Heading";
 import { ThemeProvider } from "./utils/theme-provider";
 import { Toaster } from "react-hot-toast";
 import { Providers } from "./Provider";
-import {SessionProvider} from 'next-auth/react';
+import { SessionProvider } from "next-auth/react";
+import { Loader } from "lucide-react";
+import { useLoadUserQuery } from "@/redux/features/api/apiSlice";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -34,13 +36,14 @@ export default function RootLayout({
       >
         <Providers>
           <SessionProvider>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            {children}
-            <Toaster position="top-center" reverseOrder={false} />
-          </ThemeProvider>
+            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+              {children}
+              <Toaster position="top-center" reverseOrder={false} />
+            </ThemeProvider>
           </SessionProvider>
         </Providers>
       </body>
     </html>
   );
 }
+

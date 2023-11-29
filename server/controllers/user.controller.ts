@@ -253,7 +253,7 @@ export const getUserInfo = CatchAsyncErrors(
 );
 
 interface ISocialAuthBody {
-  email: string;
+  email?: string;
   name: string;
   avatar: string;
 }

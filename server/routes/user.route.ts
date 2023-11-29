@@ -23,7 +23,7 @@ userRouter.post("/register", registerUser);
 //verify token
 userRouter.post("/verifyToken", activateUser);
 userRouter.post("/login-user", loginUser);
-userRouter.post("/logout-user", isAuthenticated, logoutUser);
+userRouter.get("/logout-user", isAuthenticated, logoutUser);
 userRouter.post("/social-auth", socialAuth);
 userRouter.get("/update-access-token", updateAccessToken);
 userRouter.get("/me", isAuthenticated, getUserInfo);

@@ -1,16 +1,20 @@
-"use client";
-import React, { FC, useState } from "react";
-import Heading from "./utils/Heading";
-import Header from "./components/Header";
-import Hero from "./components/Hero";
+'use client'
+import React, {FC, useState} from 'react'
+import Protected from '../hooks/useProtected'
+import Header from '../components/Header';
+import {useSelector} from 'react-redux'
+import Heading from '../utils/Heading';
 import { useLoadUserQuery } from "@/redux/features/api/apiSlice";
+import ProfileComponent from '../components/ProfileComponent';
 
-interface Props {}
-const Page: FC<Props> = (props) => {
+type Props = {}
+
+const Profile:FC<Props> = () => {
   const [open, setOpen] = useState(false);
   const [activeItem, setActiveItem] = useState(0);
   const [route, setRoute] = useState("Login");
   const { isLoading } = useLoadUserQuery({});
+  const {user} = useSelector((state:any) => state.auth)
 
   return (
     <>
@@ -23,9 +27,9 @@ const Page: FC<Props> = (props) => {
           </>
         )
       }
-      <div>
+      <Protected>
         <Heading
-          title="E-Learning"
+          title={`${user?.name}`}
           description="E-Learning platform built with NextJS"
           keywords="E-Learning MERN"
         />
@@ -36,9 +40,13 @@ const Page: FC<Props> = (props) => {
           setRoute={setRoute}
           route={route}
         />
-        <Hero />
-      </div>
+
+        <>
+          <ProfileComponent user={user} />
+        </>
+      </Protected>
     </>
   );
 };
-export default Page;
+
+export default Profile

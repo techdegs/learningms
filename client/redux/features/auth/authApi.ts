@@ -32,7 +32,7 @@ export const authApi = apiSlice.injectEndpoints({
         }
       },
     }),
-
+  
     //Activation
     activate: builder.mutation({
       query: ({ activation_token, activation_code }) => ({
@@ -40,7 +40,7 @@ export const authApi = apiSlice.injectEndpoints({
         method: "POST",
         body: {
           activation_token,
-          activation_code,
+          activation_code,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
         },
       }),
     }),
@@ -110,7 +110,7 @@ export const authApi = apiSlice.injectEndpoints({
 
       async onQueryStarted(arg, { queryFulfilled, dispatch }) {
         try {
-          dispatch(userLoggedOut({accessToken: "", user: ""}));
+          dispatch(userLoggedOut({ accessToken: "", user: "" }));
         } catch (error: any) {
           console.log(error);
         }
@@ -124,5 +124,5 @@ export const {
   useRegisterMutation,
   useLoginMutation,
   useSocialAuthMutation,
-  useLogoutQuery
+  useLogoutQuery,
 } = authApi;

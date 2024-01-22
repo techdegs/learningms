@@ -43,6 +43,7 @@ export const editCourse = CatchAsyncErrors(
       const data = req.body;
       const thumbnail = data.thumbnail;
 
+      //GET COURSE ID TO FETCH COURSES
       const courseId = req.params.id;
 
       const course = await CourseModel.findByIdAndUpdate(
@@ -51,6 +52,7 @@ export const editCourse = CatchAsyncErrors(
         { new: true }
       );
 
+      //return error if course id was not found
       if (!courseId)
         return next(
           new ErrorHandler(
@@ -61,6 +63,7 @@ export const editCourse = CatchAsyncErrors(
 
       if (!course) return next(new ErrorHandler("Course not found", 400));
 
+      //upload videos thumbnail to cloudinary and if video thumbnail exist destroy or delete the video
       if (thumbnail) {
         await cloudinary.v2.uploader.destroy(thumbnail.public_id);
         const myCloud = await cloudinary.v2.uploader.upload(thumbnail, {
@@ -132,7 +135,7 @@ export const getSingleCourse = CatchAsyncErrors(
   }
 );
 
-//Get all courses for the public
+//Get all courses for the public view
 export const getAllCourses = CatchAsyncErrors(
   async (req: Request, res: Response, next: NextFunction) => {
     try {

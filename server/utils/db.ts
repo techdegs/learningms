@@ -3,6 +3,7 @@ require("dotenv").config;
 
 const dbUrl: string = process.env.MONGODB_URL || "";
 
+//create mongo db connection and connect to remote mongodb database using mainly the link
 const connectDB = async () => {
   try {
     await mongoose.connect(dbUrl).then((data: any) => {

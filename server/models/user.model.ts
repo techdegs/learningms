@@ -28,7 +28,7 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
     name: { type: String, required: [true, "Please enter your name"] },
     email: {
       type: String,
-      //required: [true, "Please enter your email"],
+      required: [true, "Please enter your email"],
       validate: {
         validator: function (value: string) {
           return emailRegexPattern.test(value);

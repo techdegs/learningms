@@ -289,18 +289,10 @@ export const updateUserInfo = CatchAsyncErrors(
       const { name, email } = req.body as IUpdateUserInfo;
       const userId = req.user?._id;
       const user = await userModel.findById(userId);
-
-      if (email && user) {
-        const isEmailExist = await userModel.findOne({ email });
-        if (isEmailExist) {
-          return next(
-            new ErrorHandler(`This email: ${email} already exist`, 400)
-          );
-        }
-        user.email = email;
-      }
-      if (name && user) {
+      
+      if (email && name && user ) {
         user.name = name;
+        user.email = email
       }
       await user?.save();
       await redis.set(userId, JSON.stringify(user));

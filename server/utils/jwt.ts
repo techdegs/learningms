@@ -29,6 +29,7 @@ export const accessTokenOptions: ITokenOptions = {
   sameSite: "lax",
 };
 
+//Options for refresh token
 export const refreshTokenOptions: ITokenOptions = {
   expires: new Date(Date.now() + refreshTokenExpire * 24 * 60 * 60 * 1000),
   maxAge: accessTokenExpire * 24 * 60 * 60 * 1000,
@@ -36,6 +37,7 @@ export const refreshTokenOptions: ITokenOptions = {
   sameSite: "lax",
 };
 
+//Send token anytime user login in or register
 export const sendToken = (user: IUser, statusCode: number, res: Response) => {
   const accessToken = user.SignAccessToken();
   const refreshToken = user.SignRefreshToken();

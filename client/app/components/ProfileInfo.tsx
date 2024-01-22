@@ -2,23 +2,30 @@ import React, { FC, useEffect, useState } from "react";
 import Image from "next/image";
 import { AiOutlineCamera } from "react-icons/ai";
 import { styles } from "../styles/style";
-import { useUpdateAvatarMutation } from "@/redux/features/user/userApi";
+import {
+  useUpdateAvatarMutation,
+  useUpdateUserInfoMutation,
+} from "@/redux/features/user/userApi";
 import { useLoadUserQuery } from "@/redux/features/api/apiSlice";
+import toast from "react-hot-toast";
 
 type Props = { avatar: string | null; user: any };
 
 const ProfileInfo: FC<Props> = ({ avatar, user }) => {
   const [name, setName] = useState(user && user.name);
   const [email, setEmail] = useState(user && user?.email);
+  const [userId, setUserId] = useState(user && user._id)
   const [updateAvatar, { isSuccess, error }] = useUpdateAvatarMutation();
   const [loadUser, setLoadUser] = useState(false);
   const {} = useLoadUserQuery(undefined, { skip: loadUser ? false : true });
+  const [updateUserInfo, {isSuccess: infoSuccess, error: infoError }] =
+    useUpdateUserInfoMutation();
 
   const imageHandler = async (e: any) => {
     const fileReader = new FileReader();
     fileReader.onload = () => {
       if (fileReader.readyState === 2) {
-        const avatar = fileReader.result
+        const avatar = fileReader.result;
         updateAvatar(avatar);
       }
     };
@@ -27,16 +34,31 @@ const ProfileInfo: FC<Props> = ({ avatar, user }) => {
   };
 
   useEffect(() => {
-    if (isSuccess) {
+    if(user){
+      const id = user._id 
+      setUserId(id)
+    }
+    if (isSuccess || infoSuccess) {
       setLoadUser(true);
     }
-    if (error) {
+    if (error || infoError) {
       console.log(error);
     }
-  }, [isSuccess, error]);
+  }, [isSuccess, error, infoSuccess, infoError, user]);
 
+  let newEmail;
   const handleSubmit = async (e: any) => {
-    console.log("shodjk");
+    e.preventDefault();
+    if (userId === "" || userId === undefined)
+      return toast.error("Something went wrong. Try again Later ");
+    if (user?.email === "" || user?.email === undefined) {
+      newEmail = email;
+    } else {
+      newEmail = user?.email;
+    }
+
+    await updateUserInfo({ name: name, email: user?.email});
+
   };
 
   return (
@@ -95,7 +117,7 @@ const ProfileInfo: FC<Props> = ({ avatar, user }) => {
               </label>
               {user?.email === undefined || user?.email === "" ? (
                 <input
-                  type="text"
+                  type="email"
                   className={`${styles.input} w-[95%] mb-4 800px:mb-0`}
                   required
                   value={email}

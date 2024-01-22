@@ -35,13 +35,13 @@ export const isAuthenticated = CatchAsyncErrors(
       return next(new ErrorHandler("Please login to access this resources", 400));
     }
 
-    //create custom d.ts to accept user to global namespace
+    //create custom d.ts to accept user to global namespace or add user to Request
     req.user = JSON.parse(user);
     next();
   }
 );
 
-//Validate user role
+//Validate user role - admin -> super fucntions and user -> normal functions
 export const authorizeRoles = (...roles: string[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     if(!roles.includes(req.user?.role || '')){
